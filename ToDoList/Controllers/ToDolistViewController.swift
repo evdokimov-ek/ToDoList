@@ -12,14 +12,13 @@ class ToDolistViewController: UITableViewController {
     
     var itemArray = [Item]()
     
-    let dataFilePath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first?.appendingPathComponent("Items.plist")
-    
     let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        print(FileManager.default.urls(for: .documentDirectory, in: .userDomainMask))
         
-  //      loadItems()
+        loadItems()
     }
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -40,6 +39,9 @@ class ToDolistViewController: UITableViewController {
     }
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        
+//        context.delete(itemArray[indexPath.row])
+//        itemArray.remove(at: indexPath.row)
         
         itemArray[indexPath.row].done = !itemArray[indexPath.row].done
         
@@ -72,7 +74,7 @@ class ToDolistViewController: UITableViewController {
     }
     
     func saveItems() {
-       
+        
         do {
             try context.save()
         } catch {
@@ -81,17 +83,14 @@ class ToDolistViewController: UITableViewController {
         self.tableView.reloadData()
     }
     
-//    func loadItems() {
-//        if let url = dataFilePath {
-//            do {
-//                let data = try Data(contentsOf: url)
-//                let decoder = PropertyListDecoder()
-//                itemArray = try decoder.decode([Item].self, from: data)
-//            } catch {
-//                print("Error loading data \(error)")
-//            }
-//
-//        }
-//    }
+    func loadItems() {
+        let request: NSFetchRequest<Item> = Item.fetchRequest()
+        do {
+            itemArray = try context.fetch(request)
+        } catch {
+            print("Error fetching data from context \(error)")
+        }
+        
+    }
 }
 
